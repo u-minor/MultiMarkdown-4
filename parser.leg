@@ -105,6 +105,7 @@ SkipBlock = HtmlBlock
 Block =	BlankLine*
 		( BlockQuote
 		| Verbatim
+		| FencedVerbatim
 		| &{ !ext(EXT_COMPATIBILITY) } DefinitionList
 		| &{ !ext(EXT_COMPATIBILITY) } Glossary
 		| Note
@@ -124,6 +125,7 @@ Block =	BlankLine*
 HeadingSectionBlock = BlankLine* !Heading
 		( BlockQuote
 		| Verbatim
+		| FencedVerbatim
 		| &{ !ext(EXT_COMPATIBILITY) } DefinitionList
 		| &{ !ext(EXT_COMPATIBILITY) } Glossary
 		| Note
@@ -655,6 +657,15 @@ VerbatimChunk = a:StartList
 
 Verbatim = BlankLine* a:StartList
 		( VerbatimChunk { a = cons($$, a); } )+ BlankLine*
+		{ $$ = mk_str_from_list(a, false); $$->key = VERBATIM; }
+
+FencedVerbatimOpen = '```' Nonspacechar* Sp Newline
+FencedVerbatimClose = '```' Newline
+
+FencedVerbatim = BlankLine* a:StartList
+		FencedVerbatimOpen
+		( !FencedVerbatimClose Line { a = cons($$, a); } )+
+		FencedVerbatimClose
 		{ $$ = mk_str_from_list(a, false); $$->key = VERBATIM; }
 
 
